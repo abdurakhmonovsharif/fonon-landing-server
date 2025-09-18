@@ -1,136 +1,127 @@
-# Node.js Fastify PostgreSQL Template
+# Fonon Landing Server
 
-A modern, production-ready Node.js template using Fastify and PostgreSQL for quick project setup. This template provides a solid foundation for building scalable and maintainable applications with TypeScript.
+A TypeScript Fastify server that powers the Fonon landing experience. The service exposes RESTful CRUD endpoints backed by PostgreSQL via TypeORM and ships with optional Scalar-powered API documentation.
 
-## 🚀 Features
+## Highlights
 
-- **Fastify** - High-performance web framework
-- **TypeScript** - Type-safe JavaScript
-- **PostgreSQL** - Robust relational database
-- **Jest** - Testing framework
-- **ESLint + Prettier** - Code quality and formatting
-- **Husky** - Git hooks for pre-commit checks
-- **Docker** - Containerization support
-- **MVC Architecture** - Clean and organized code structure
+- **Fastify + TypeScript** for a fast, strongly-typed HTTP layer.
+- **TypeORM** entities and services for every domain model (`Location`, `Appointment`, `NavItem`, and more).
+- **Modular architecture** with per-entity controllers, services, and route plugins.
+- **Scalar API Reference** (optional) to serve interactive OpenAPI docs at `/docs`.
+- **Jest**, **ESLint**, and **Prettier** wired into npm scripts for quality and consistency.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Core
+| Area | Tools |
+| ---- | ----- |
+| Runtime | Node.js 22, Fastify 5 |
+| Database | PostgreSQL, TypeORM |
+| Language | TypeScript 5 |
+| Tooling | tsx, Nodemon, ESLint, Prettier, Jest |
 
-- Node.js
-- Fastify
-- PostgreSQL
-- TypeScript
-
-### Development Tools
-
-- Jest (Testing)
-- ESLint (Linting)
-- Prettier (Code formatting)
-- Husky (Git hooks)
-- Nodemon (Development server)
-
-### Type Definitions
-
-- @types/node
-- @types/jest
-- @types/pg
-- @types/supertest
-
-## 📁 Project Structure
+## Project Layout
 
 ```
 ├── src/
-│   ├── config/         # Configuration files
-│   ├── controllers/    # Route controllers
-│   ├── models/        # Database models
-│   ├── routes/        # API routes
-│   ├── services/      # Business logic
-│   ├── types/         # TypeScript type definitions
-│   └── utils/         # Utility functions
-├── __tests__/         # Test files
-│   ├── integration/   # Integration tests
-│   └── unit/         # Unit tests
-├── server.ts         # Application entry point
-└── package.json      # Project dependencies
+│   ├── app.ts                 # Fastify factory and route registration
+│   ├── config/                # Data source and entity configuration
+│   ├── controllers/           # Feature controllers (wrapping generic CRUD)
+│   ├── crud/                  # Shared CRUD helpers (service, controller base, errors)
+│   ├── docs/                  # OpenAPI generator
+│   ├── models/                # TypeORM entities
+│   ├── plugins/               # Fastify plugins (Scalar docs, etc.)
+│   ├── routes/                # Per-entity route plugins
+│   ├── services/              # Per-entity service factories
+│   └── types/                 # Ambient module declarations
+├── init.sql                   # Optional DB bootstrap script
+├── server.ts                  # Application entry point
+├── package.json               # Scripts and dependencies
+└── tsconfig.json              # TypeScript compiler options
 ```
 
-## 🚀 Getting Started
+## Prerequisites
 
-1. Clone the repository:
+- Node.js 20 or newer (project currently uses Node 22).
+- PostgreSQL 13+ running locally or accessible via network.
+
+## Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-fork-or-origin>
+   cd fonon-landing-server
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+   - Duplicate `.env.developement` (yes, intentional spelling) to `.env.development.local` or `.env` and adjust credentials.
+   - Key variables: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`, `PORT`.
+
+4. **Provision the database (optional)**
+   - Use `init.sql` as a starting point, or rely on TypeORM `synchronize: true` for development.
+
+5. **Run the dev server**
+   ```bash
+   npm run dev
+   ```
+   Fastify listens on `http://localhost:5000` by default.
+
+## API Documentation
+
+Scalar can serve interactive docs at `/docs`:
 
 ```bash
-git clone git@github.com:g-guerzoni/node-fastify-template.git
-```
-
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Set up environment variables:
-
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-4. Start the development server:
-
-```bash
+npm install @scalar/fastify-api-reference
 npm run dev
 ```
 
-## 📝 Available Scripts
+- Visit `http://localhost:5000/docs/` for the UI (note the trailing slash).
+- Scalar is optional; if the dependency is missing the server will skip the plugin gracefully.
 
-- `npm start` - Start the production server
-- `npm run dev` - Start the development server with hot-reload
-- `npm test` - Run tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Run tests with coverage report
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
-- `npm run type-check` - Check TypeScript types
+## Useful Scripts
 
-## 🧪 Testing
+| Command | Description |
+| ------- | ----------- |
+| `npm run dev` | Start the nodemon + tsx development server |
+| `npm run start` | Start the production build (tsx) |
+| `npm run type-check` | TypeScript type checking only |
+| `npm run lint` | Run ESLint |
+| `npm run format` | Format with Prettier |
+| `npm test` | Run Jest test suite |
+| `npm run migration:generate` | Generate a TypeORM migration from entity changes |
+| `npm run migration:run` | Execute pending TypeORM migrations |
 
-The project uses Jest for testing. Tests are organized into:
+## Architecture Overview
 
-- Unit tests (`__tests__/unit/`)
-- Integration tests (`__tests__/integration/`)
+- **Controllers & Services**: Each entity has a service (wrapping the generic `CrudService`) and controller (wrapping the generic `CrudController`). Route plugins compose these with Fastify paths under `/api/<resource>`.
+- **Data Source**: `src/config/database.ts` exposes a shared `AppDataSource` and `initializeDataSource()` helper used throughout.
+- **OpenAPI**: `src/docs/openapi.ts` inspects TypeORM metadata to produce a live OpenAPI 3.1 specification consumed by Scalar.
 
-Run tests with:
+## Testing
+
+The project uses Jest. Tests live under `__tests__/`.
 
 ```bash
-npm test
+npm test            # run all tests once
+npm run test:watch  # watch mode
+npm run test:coverage
 ```
 
-## 🔧 Configuration
+## Contributing
 
-- `tsconfig.json` - TypeScript configuration
-- `.eslintrc.json` - ESLint configuration
-- `.prettierrc` - Prettier configuration
-- `jest.config.ts` - Jest configuration
+1. Fork the repo.
+2. Create a feature branch: `git checkout -b feature/my-update`.
+3. Commit with descriptive messages.
+4. Submit a pull request once your feature is ready.
 
-## 🤝 Contributing
+## License
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Released under the MIT License. See [LICENSE](LICENSE) for details.
 
-## 📄 License
+## Maintainer
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👤 Author
-
-Guilherme Guerzoni
-
-## 🙏 Acknowledgments
-
-- Fastify team for the amazing framework
-- All contributors and maintainers of the used packages
-# fonon-landing-server
+Crafted by Abdurakhmonov Sharif and contributors.
