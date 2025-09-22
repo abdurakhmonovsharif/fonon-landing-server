@@ -1,0 +1,2 @@
+-- Optional seed script for fonon_landing database
+-- Add INSERT statements here to bootstrap your environment.
