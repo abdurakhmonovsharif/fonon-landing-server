@@ -1,0 +1,32 @@
+# Node.js artifacts
+node_modules/
+dist/
+coverage/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Java build artifacts
+Java-fonon-landing-server/target/
+Java-fonon-landing-server/.mvn/
+Java-fonon-landing-server/mvnw
+Java-fonon-landing-server/mvnw.cmd
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.class
+
+# macOS system files
+.DS_Store

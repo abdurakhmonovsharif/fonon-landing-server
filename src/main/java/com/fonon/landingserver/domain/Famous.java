@@ -10,9 +10,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
+import java.sql.Array;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,6 +47,10 @@ public class Famous implements Identifiable {
 
     @Column(name = "body_en", columnDefinition = "text")
     private String bodyEn;
+
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "text[]")
+    private List<String> images = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", columnDefinition = "timestamptz", updatable = false)

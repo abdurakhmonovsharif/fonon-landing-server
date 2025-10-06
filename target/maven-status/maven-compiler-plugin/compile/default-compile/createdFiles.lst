@@ -24,7 +24,6 @@ com/fonon/landingserver/controller/BaseCrudController.class
 com/fonon/landingserver/repository/ClientDetailsRepository.class
 com/fonon/landingserver/service/ClientDetailsCrudService.class
 com/fonon/landingserver/repository/GalleryRepository.class
-com/fonon/landingserver/controller/HelloController.class
 com/fonon/landingserver/repository/JobRequestRepository.class
 com/fonon/landingserver/controller/ContactController.class
 com/fonon/landingserver/service/NewsCrudService.class
@@ -38,7 +37,6 @@ com/fonon/landingserver/repository/LocationRepository.class
 com/fonon/landingserver/controller/FamousController.class
 com/fonon/landingserver/repository/NavItemProductRepository.class
 com/fonon/landingserver/domain/AppointmentType.class
-com/fonon/landingserver/web/dto/HealthResponse.class
 com/fonon/landingserver/domain/Vacancy.class
 com/fonon/landingserver/FononLandingServerApplication.class
 com/fonon/landingserver/domain/UserEmail.class
@@ -53,7 +51,6 @@ com/fonon/landingserver/service/AppointmentServiceCrudService.class
 com/fonon/landingserver/service/GalleryCrudService.class
 com/fonon/landingserver/domain/About.class
 com/fonon/landingserver/controller/GalleryController.class
-com/fonon/landingserver/controller/HealthController.class
 com/fonon/landingserver/repository/NavItemRepository.class
 com/fonon/landingserver/controller/ClientDetailsController.class
 com/fonon/landingserver/service/ContactCrudService.class
@@ -71,4 +68,3 @@ com/fonon/landingserver/service/CrudService.class
 com/fonon/landingserver/controller/NavItemProductController.class
 com/fonon/landingserver/exception/GlobalExceptionHandler.class
 com/fonon/landingserver/repository/FamousRepository.class
-com/fonon/landingserver/web/dto/HelloResponse.class

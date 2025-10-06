@@ -56,6 +56,57 @@ docker run --rm -p 8080:8080 \
 
 Mount your own `application.yml` or use environment variables for production configuration.
 
+## Cloudflare R2 Storage
+- Create a bucket under R2 > **Manage Buckets** and note the bucket name.
+- Generate an API token with "Edit" permissions for the bucket (R2 > **API Tokens** > Create API Token) and copy the access + secret keys.
+- Retrieve the account ID from the R2 dashboard (Settings > **R2** > Account ID).
+
+Configure these environment variables when running the app:
+
+| Variable | Description |
+| --- | --- |
+| `R2_ACCOUNT_ID` | Cloudflare account identifier (32 chars) |
+| `R2_ACCESS_KEY_ID` | API token access key |
+| `R2_SECRET_ACCESS_KEY` | API token secret key |
+| `R2_BUCKET` | Target bucket name |
+| `R2_PRESIGN_EXPIRY_SECONDS` | *(optional)* override for presigned URL TTL |
+
+Example presigned upload (assuming the backend issued `upload_url`):
+
+```bash
+curl -X PUT "${upload_url}" \
+  -H "Content-Type: image/webp" \
+  -H "Content-Length: $(stat -f%z image.webp)" \
+  --data-binary @image.webp
+```
+
+Example presigned download:
+
+```bash
+curl -L "${download_url}" --output file.webp
+```
+
+Sample R2 CORS configuration:
+
+```json
+[
+  {
+    "AllowedHeaders": [
+      "content-type",
+      "content-length",
+      "x-amz-content-sha256",
+      "x-amz-date",
+      "authorization",
+      "x-amz-security-token"
+    ],
+    "AllowedMethods": ["GET", "PUT"],
+    "AllowedOrigins": ["https://<your-frontend>"]
+  }
+]
+```
+
+> Cloudflare's free tier is generous, but R2 will retain all objects until you delete them—clean up test uploads to control storage usage.
+
 ## Project Structure
 ```
 src/main/java/com/fonon/landingserver

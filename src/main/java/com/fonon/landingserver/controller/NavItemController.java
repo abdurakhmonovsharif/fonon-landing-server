@@ -13,3 +13,4 @@ public class NavItemController extends BaseCrudController<NavItem> {
         super(service);
     }
 }
+    

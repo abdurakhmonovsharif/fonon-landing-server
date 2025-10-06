@@ -28,7 +28,7 @@ public abstract class BaseCrudController<T extends Identifiable> {
     }
 
     @GetMapping("/{id}")
-    public T get(@PathVariable Long id) {
+    public Object get(@PathVariable Long id) {
         return service.findOne(id);
     }
 
