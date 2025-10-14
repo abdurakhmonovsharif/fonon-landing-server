@@ -25,25 +25,6 @@ services:
     restart: unless-stopped
     volumes:
       - app-storage:/app/storage
-
-  db:
-    image: postgres:16.4-alpine
-    ports:
-      - "${DB_PORT_EXTERNAL:-5432}:5432"
-    environment:
-      POSTGRES_DB: ${DB_NAME:-fonon_landing}
-      POSTGRES_USER: ${DB_USER:-fonon}
-      POSTGRES_PASSWORD: ${DB_PASS:-fonon}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    restart: unless-stopped
-
 volumes:
   app-storage:
   db-data:
