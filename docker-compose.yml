@@ -10,12 +10,17 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
 
-      DB_HOST: ${DB_HOST:-185.217.131.110}
-      DB_PORT: ${DB_PORT:-5432}
-      DB_NAME: ${DB_NAME:-fonon_landing}
-      DB_USER: ${DB_USER:-fonon}
-      DB_PASS: ${DB_PASS:-fonon}
+      # ✅ Proper Spring Boot datasource config
+      SPRING_DATASOURCE_URL: jdbc:postgresql://185.217.131.110:5432/fonon_landing
+      SPRING_DATASOURCE_USERNAME: sardoba_user
+      SPRING_DATASOURCE_PASSWORD: sardoba_super_secret_password
+      SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
 
+      # Optional tuning (recommended)
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+      # Other environment variables (Cloudflare etc.)
       R2_BUCKET: ${R2_BUCKET:-my-bucket}
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-00000000000000000000000000000000}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-changeme}
