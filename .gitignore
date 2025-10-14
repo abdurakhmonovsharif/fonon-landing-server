@@ -17,6 +17,7 @@ logs/
 *.log
 
 # Java build artifacts
+target/
 Java-fonon-landing-server/target/
 Java-fonon-landing-server/.mvn/
 Java-fonon-landing-server/mvnw
