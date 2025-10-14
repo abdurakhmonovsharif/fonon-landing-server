@@ -13,5 +13,5 @@ ENV SPRING_PROFILES_ACTIVE=default
 ARG JAR_FILE=target/*.jar
 COPY --from=build /workspace/${JAR_FILE} app.jar
 COPY init.sql ./init.sql
-EXPOSE 8080
+EXPOSE 9090
 ENTRYPOINT ["java", "-jar", "app.jar"]

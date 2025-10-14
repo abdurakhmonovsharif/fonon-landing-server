@@ -23,7 +23,7 @@ Configure the same environment variables used by the Node.js service:
 
 | Variable | Description | Default         |
 | --- | --- |-----------------|
-| `PORT` | HTTP server port | `8080`          |
+| `PORT` | HTTP server port | `9090`          |
 | `DB_HOST` | PostgreSQL host | `localhost`     |
 | `DB_PORT` | PostgreSQL port | `5432`          |
 | `DB_NAME` | Database name | `fonon_landing` |
@@ -35,7 +35,7 @@ Configure the same environment variables used by the Node.js service:
 mvn spring-boot:run
 ```
 
-The API is available at `http://localhost:8080/api`.
+The API is available at `http://localhost:9090/api`.
 
 ### Build a Jar
 ```bash
@@ -46,7 +46,7 @@ java -jar target/fonon-landing-server-1.0.0.jar
 ### Docker Image
 ```bash
 docker build -t fonon-landing-server:latest .
-docker run --rm -p 8080:8080 \
+docker run --rm -p 9090:9090 \
   -e DB_HOST=postgres \
   -e DB_PORT=5432 \
   -e DB_NAME=fonon_landing \
