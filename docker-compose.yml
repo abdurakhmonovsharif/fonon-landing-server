@@ -1,0 +1,49 @@
+services:
+  app:
+    image: fonon-landing-server:latest
+    build:
+      context: .
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-fonon_landing}
+      DB_USER: ${DB_USER:-fonon}
+      DB_PASS: ${DB_PASS:-fonon}
+      R2_BUCKET: ${R2_BUCKET:-my-bucket}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-00000000000000000000000000000000}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-changeme}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-changeme}
+      R2_PRESIGN_EXPIRY_SECONDS: ${R2_PRESIGN_EXPIRY_SECONDS:-300}
+      FILE_STORAGE_BASE_PATH: ${FILE_STORAGE_BASE_PATH:-/app/storage}
+      FILE_STORAGE_PUBLIC_PATH: ${FILE_STORAGE_PUBLIC_PATH:-/storage}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - app-storage:/app/storage
+
+  db:
+    image: postgres:16.4-alpine
+    ports:
+      - "${DB_PORT_EXTERNAL:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-fonon_landing}
+      POSTGRES_USER: ${DB_USER:-fonon}
+      POSTGRES_PASSWORD: ${DB_PASS:-fonon}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+volumes:
+  app-storage:
+  db-data:

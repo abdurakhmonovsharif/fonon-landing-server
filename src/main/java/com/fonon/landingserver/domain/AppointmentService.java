@@ -2,6 +2,8 @@ package com.fonon.landingserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -78,4 +80,28 @@ public class AppointmentService implements Identifiable {
     @OneToOne(mappedBy = "service")
     @JsonManagedReference("service-client")
     private ClientDetails client;
+
+    @JsonSetter("time")
+    public void setTimeFromJson(JsonNode node) {
+        if (node == null || node.isNull()) {
+            this.time = null;
+            return;
+        }
+        if (node.isTextual()) {
+            this.time = LocalTime.parse(node.asText());
+            return;
+        }
+        if (node.isObject()) {
+            if (!node.hasNonNull("hour") || !node.hasNonNull("minute")) {
+                throw new IllegalArgumentException("Time JSON must include hour and minute");
+            }
+            int hour = node.get("hour").asInt();
+            int minute = node.get("minute").asInt();
+            int second = node.has("second") ? node.get("second").asInt() : 0;
+            int nano = node.has("nano") ? node.get("nano").asInt() : 0;
+            this.time = LocalTime.of(hour, minute, second, nano);
+            return;
+        }
+        throw new IllegalArgumentException("Unsupported time format");
+    }
 }

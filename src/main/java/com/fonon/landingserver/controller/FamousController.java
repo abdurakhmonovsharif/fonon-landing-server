@@ -37,4 +37,19 @@ public class FamousController extends BaseCrudController<Famous> {
     public FamousDTO get(@PathVariable Long id) {
         return service.get(id);
     }
+
+    @GetMapping("/slug/{slug}")
+    @Operation(
+            summary = "Get famous by slug",
+            description = "Retrieves a famous entry using its slug with the last five other famous items",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Famous entry with last items",
+                            content = @Content(schema = @Schema(implementation = FamousDTO.class)))
+            }
+    )
+    public FamousDTO getBySlug(@PathVariable String slug) {
+        return service.getBySlug(slug);
+    }
 }

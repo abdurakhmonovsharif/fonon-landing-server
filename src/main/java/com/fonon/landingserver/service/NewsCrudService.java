@@ -48,6 +48,7 @@ public class NewsCrudService extends CrudService<News> {
                     OffsetDateTime publishedAt = n.getPublishedAt() != null ? n.getPublishedAt() : n.getCreatedAt();
                     return new LastItemsDTO(
                             n.getId(),
+                            null,
                             n.getTitleUz(),
                             n.getTitleRu(),
                             n.getTitleEn(),

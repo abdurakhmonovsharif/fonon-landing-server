@@ -6,9 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -48,6 +50,11 @@ public class About implements Identifiable {
     @Column(name = "body_en", columnDefinition = "text")
     private String bodyEn;
 
+    @Setter(AccessLevel.NONE)
+    @NotBlank
+    @Column(name = "slug", columnDefinition = "text", nullable = false, unique = true)
+    private String slug;
+
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(columnDefinition = "text[]")
     private List<String> images = new ArrayList<>();
@@ -59,4 +66,15 @@ public class About implements Identifiable {
     @UpdateTimestamp
     @Column(name = "updated_at", columnDefinition = "timestamptz")
     private OffsetDateTime updatedAt;
+
+    public void setSlug(String slug) {
+        if (slug == null) {
+            throw new IllegalArgumentException("Slug is required");
+        }
+        String sanitized = slug.trim();
+        if (sanitized.isEmpty()) {
+            throw new IllegalArgumentException("Slug must not be blank");
+        }
+        this.slug = sanitized;
+    }
 }

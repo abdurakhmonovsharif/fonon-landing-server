@@ -7,10 +7,11 @@ RUN mvn -ntp dependency:go-offline
 COPY src ./src
 RUN mvn -ntp package -DskipTests
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21.0.3_9-jre
 WORKDIR /app
 ENV SPRING_PROFILES_ACTIVE=default
-COPY --from=build /workspace/target/fonon-landing-server-1.0.0.jar app.jar
+ARG JAR_FILE=target/*.jar
+COPY --from=build /workspace/${JAR_FILE} app.jar
 COPY init.sql ./init.sql
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

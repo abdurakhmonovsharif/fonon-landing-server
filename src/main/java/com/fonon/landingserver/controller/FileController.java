@@ -33,6 +33,7 @@ public class FileController {
                                                      @RequestParam("file") MultipartFile file) {
         StoredFile storedFile = storageService.store(file, category);
         FileUploadResponse response = new FileUploadResponse(
+                storedFile.id(),
                 storedFile.filename(),
                 storedFile.relativePath(),
                 storedFile.url(),

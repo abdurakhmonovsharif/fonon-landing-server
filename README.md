@@ -16,6 +16,7 @@ Spring Boot port of the Fonon landing server originally implemented with Fastify
 - Java 21+
 - Maven 3.9+
 - PostgreSQL 13+
+- Docker 24+ (optional but required for containerized runs)
 
 ### Environment Variables
 Configure the same environment variables used by the Node.js service:
@@ -42,19 +43,37 @@ mvn clean package
 java -jar target/fonon-landing-server-1.0.0.jar
 ```
 
-### Docker
+### Docker Image
 ```bash
-docker build -t fonon-landing-server-java .
+docker build -t fonon-landing-server:latest .
 docker run --rm -p 8080:8080 \
   -e DB_HOST=postgres \
   -e DB_PORT=5432 \
   -e DB_NAME=fonon_landing \
   -e DB_USER=postgres \
   -e DB_PASS=root \
-  fonon-landing-server-java
+  fonon-landing-server:latest
 ```
 
 Mount your own `application.yml` or use environment variables for production configuration.
+
+### Docker Compose (app + Postgres)
+Start the API and a PostgreSQL 16.4 instance together:
+
+```bash
+docker compose up --build -d
+docker compose logs -f app
+```
+
+Configuration defaults live in `.env`; adjust the values there or set environment variables directly (see `docker-compose.yml` for supported keys). Data is persisted in named Docker volumes (`app-storage`, `db-data`).
+
+Use the helper script to rebuild and restart the stack in one step:
+
+```bash
+./restart.sh
+```
+
+The script accepts additional service names or `docker compose up` flags (for example `./restart.sh --no-deps app`).
 
 ## Cloudflare R2 Storage
 - Create a bucket under R2 > **Manage Buckets** and note the bucket name.

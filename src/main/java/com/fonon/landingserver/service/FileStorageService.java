@@ -1,6 +1,8 @@
 package com.fonon.landingserver.service;
 
+import com.fonon.landingserver.domain.FileEntity;
 import com.fonon.landingserver.exception.BadRequestException;
+import com.fonon.landingserver.repository.FileRepository;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,11 +28,14 @@ public class FileStorageService {
     private static final Logger log = LoggerFactory.getLogger(FileStorageService.class);
     private static final Set<String> PDF_ONLY_CATEGORIES = Set.of("jobrequest", "job-request", "job_request");
 
+    private final FileRepository fileRepository;
     private final Path rootDirectory;
     private final String publicPrefix;
 
-    public FileStorageService(@Value("${app.file-storage.base-path:storage}") String basePath,
+    public FileStorageService(FileRepository fileRepository,
+                              @Value("${app.file-storage.base-path:storage}") String basePath,
                               @Value("${app.file-storage.public-path:/storage}") String publicPath) {
+        this.fileRepository = fileRepository;
         this.rootDirectory = Paths.get(basePath).toAbsolutePath().normalize();
         this.publicPrefix = ensureLeadingSlash(publicPath);
     }
@@ -57,8 +63,10 @@ public class FileStorageService {
         }
     }
 
+    @Transactional
     public StoredFile store(MultipartFile file, String category) {
         if (file == null || file.isEmpty()) {
+            log.warn("Store request rejected: empty file for category {}", category);
             throw new BadRequestException("File is required");
         }
         String normalizedCategory = normalizeCategory(category);
@@ -72,6 +80,7 @@ public class FileStorageService {
         }
 
         if (pdfOnly && (extension == null || !extension.equals("pdf"))) {
+            log.warn("Store request rejected: non-PDF file for job request category: original name={}", file.getOriginalFilename());
             throw new BadRequestException("Job request files must be in PDF format");
         }
 
@@ -91,24 +100,50 @@ public class FileStorageService {
         try {
             Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
+            log.error("Failed to store file for category {} at path {}", normalizedCategory, target, e);
             throw new IllegalStateException("Failed to store file", e);
         }
 
         String relativePath = normalizedCategory + "/" + filename;
         String publicUrl = buildPublicUrl(relativePath);
-        return new StoredFile(filename, relativePath, publicUrl, file.getSize(), extension);
-    }
+        FileEntity entity = new FileEntity();
+        entity.setCategory(normalizedCategory);
+        entity.setFilename(filename);
+        entity.setRelativePath(relativePath);
+        entity.setUrl(publicUrl);
+        entity.setSize(file.getSize());
+        entity.setExtension(extension);
+        entity.setOriginalFilename(file.getOriginalFilename());
 
-    public void delete(String storedPath) {
-        resolvePath(storedPath).ifPresent(path -> {
+        FileEntity savedEntity;
+        try {
+            savedEntity = fileRepository.save(entity);
+        } catch (RuntimeException ex) {
             try {
-                Files.deleteIfExists(path);
-            } catch (IOException e) {
-                log.warn("Failed to delete file {}", path, e);
+                Files.deleteIfExists(target);
+            } catch (IOException cleanupException) {
+                log.warn("Failed to remove file {} after persistence error", target, cleanupException);
             }
-        });
+            throw ex;
+        }
+
+        log.info("Stored file for category {} as {} (id={})", normalizedCategory, relativePath, savedEntity.getId());
+        return new StoredFile(
+                savedEntity.getId(),
+                savedEntity.getFilename(),
+                savedEntity.getRelativePath(),
+                savedEntity.getUrl(),
+                savedEntity.getSize(),
+                savedEntity.getExtension()
+        );
     }
 
+    @Transactional
+    public void delete(String storedPath) {
+        deleteInternal(storedPath);
+    }
+
+    @Transactional
     public void deleteAll(Collection<String> storedPaths) {
         if (storedPaths == null) {
             return;
@@ -120,29 +155,59 @@ public class FileStorageService {
                 unique.add(value);
             }
         }
-        unique.forEach(this::delete);
+        unique.forEach(path -> {
+            log.debug("Deleting referenced file {}", path);
+            deleteInternal(path);
+        });
     }
 
-    private java.util.Optional<Path> resolvePath(String storedPath) {
+    private void deleteInternal(String storedPath) {
+        resolveStoragePath(storedPath).ifPresent(resolved -> {
+            Path path = resolved.absolutePath();
+            try {
+                boolean deleted = Files.deleteIfExists(path);
+                if (deleted) {
+                    log.info("Deleted stored file {}", path);
+                } else {
+                    log.info("File already absent at {}", path);
+                }
+            } catch (IOException e) {
+                log.error("Failed to delete file {}", path, e);
+            } finally {
+                long removed = fileRepository.deleteByRelativePath(resolved.relativePath());
+                if (removed > 0) {
+                    log.info("Removed {} metadata record(s) for stored file {}", removed, resolved.relativePath());
+                } else {
+                    log.debug("No metadata record found for stored file {}", resolved.relativePath());
+                }
+            }
+        });
+    }
+
+    private java.util.Optional<ResolvedStoragePath> resolveStoragePath(String storedPath) {
         if (storedPath == null || storedPath.isBlank()) {
             return java.util.Optional.empty();
         }
         String sanitized = storedPath.trim();
-        if (sanitized.startsWith(publicPrefix)) {
-            sanitized = sanitized.substring(publicPrefix.length());
+        int prefixIndex = sanitized.indexOf(publicPrefix);
+        if (prefixIndex >= 0) {
+            sanitized = sanitized.substring(prefixIndex + publicPrefix.length());
         }
-        if (sanitized.startsWith("/")) {
+        sanitized = sanitized.replace("\\", "/");
+        while (sanitized.startsWith("/")) {
             sanitized = sanitized.substring(1);
         }
-        if (sanitized.contains("..")) {
+        if (sanitized.contains("..") || sanitized.isBlank()) {
             return java.util.Optional.empty();
         }
         Path path = rootDirectory.resolve(sanitized).normalize();
         if (!path.startsWith(rootDirectory)) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(path);
+        return java.util.Optional.of(new ResolvedStoragePath(sanitized, path));
     }
+
+    private record ResolvedStoragePath(String relativePath, Path absolutePath) {}
 
     private String buildPublicUrl(String relativePath) {
         if (relativePath == null || relativePath.isBlank()) {
@@ -195,5 +260,5 @@ public class FileStorageService {
         return publicPrefix;
     }
 
-    public record StoredFile(String filename, String relativePath, String url, long size, String extension) {}
+    public record StoredFile(Long id, String filename, String relativePath, String url, long size, String extension) {}
 }

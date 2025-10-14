@@ -1,6 +1,7 @@
 package com.fonon.landingserver.service;
 
 import com.fonon.landingserver.domain.Famous;
+import com.fonon.landingserver.exception.ResourceNotFoundException;
 import com.fonon.landingserver.repository.FamousRepository;
 import com.fonon.landingserver.web.dto.FamousDTO;
 import com.fonon.landingserver.web.dto.LastItemsDTO;
@@ -19,21 +20,13 @@ public class FamousCrudService extends CrudService<Famous> {
     }
     public FamousDTO get(Long id) {
         Famous famous = this.findOne(id);
-        List<LastItemsDTO> lastItems = this.findLast5Famous(id);
-        if (famous != null) {
-            return new FamousDTO(
-                    famous.getTitleUz(),
-                    famous.getTitleRu(),
-                    famous.getTitleEn(),
-                    famous.getBodyUz(),
-                    famous.getBodyRu(),
-                    famous.getBodyEn(),
-                    famous.getImages() == null ? List.of() : List.copyOf(famous.getImages()),
-                    famous.getCreatedAt(),
-                    lastItems);
-        } else {
-            throw new RuntimeException("Famous not found with id: " + id);
-        }
+        return buildFamousDto(famous);
+    }
+
+    public FamousDTO getBySlug(String slug) {
+        Famous famous = repository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Famous", slug));
+        return buildFamousDto(famous);
     }
 
     public List<LastItemsDTO> findLast5Famous(Long id) {
@@ -45,6 +38,7 @@ public class FamousCrudService extends CrudService<Famous> {
                     String firstImage = (images == null || images.isEmpty()) ? null : images.get(0);
                     return new LastItemsDTO(
                             f.getId(),
+                            f.getSlug(),
                             f.getTitleUz(),
                             f.getTitleRu(),
                             f.getTitleEn(),
@@ -62,5 +56,20 @@ public class FamousCrudService extends CrudService<Famous> {
             storageService.deleteAll(images);
         }
         super.remove(id);
+    }
+
+    private FamousDTO buildFamousDto(Famous famous) {
+        List<LastItemsDTO> lastItems = this.findLast5Famous(famous.getId());
+        return new FamousDTO(
+                famous.getSlug(),
+                famous.getTitleUz(),
+                famous.getTitleRu(),
+                famous.getTitleEn(),
+                famous.getBodyUz(),
+                famous.getBodyRu(),
+                famous.getBodyEn(),
+                famous.getImages() == null ? List.of() : List.copyOf(famous.getImages()),
+                famous.getCreatedAt(),
+                lastItems);
     }
 }

@@ -51,6 +51,10 @@ public class NavItem implements Identifiable {
     @JsonBackReference("navitem-children")
     private NavItem parent;
 
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
+    @JsonManagedReference("navitem-children")
+    private List<NavItem> children = new ArrayList<>();
+
     @OneToMany(mappedBy = "navitem", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     @JsonManagedReference("navitem-products")
     private List<NavItemProduct> products = new ArrayList<>();

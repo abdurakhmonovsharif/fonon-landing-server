@@ -1,5 +1,6 @@
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/FononLandingServerApplication.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/config/CorsConfig.java
+/Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/config/RequestLoggingFilter.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/config/StorageResourceConfig.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/controller/AboutController.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/controller/AppointmentController.java
@@ -25,6 +26,7 @@
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/ClientDetails.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/Contact.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/Famous.java
+/Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/FileEntity.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/Gallery.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/Identifiable.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/JobRequest.java
@@ -34,8 +36,10 @@
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/NavItem.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/NavItemProduct.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/News.java
+/Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/SocialLink.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/UserEmail.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/Vacancy.java
+/Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/domain/converter/MediaTypeAttributeConverter.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/exception/BadRequestException.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/exception/GlobalExceptionHandler.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/exception/ResourceNotFoundException.java
@@ -45,6 +49,7 @@
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/ClientDetailsRepository.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/ContactRepository.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/FamousRepository.java
+/Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/FileRepository.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/GalleryRepository.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/JobRequestRepository.java
 /Users/abduraxmonovsharif/Desktop/code/fonon-landing-server/src/main/java/com/fonon/landingserver/repository/JournalRepository.java
