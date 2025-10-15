@@ -10,11 +10,29 @@ services:
     ports:
       - "${APP_PORT:-9090}:9090"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
-      SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # --- Spring Boot settings ---
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
+      # --- PostgreSQL connection ---
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASS}
+
+      # --- Hibernate settings ---
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=${JPA_DIALECT}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${JPA_DDL_AUTO}
+
+      # --- File storage ---
+      - FILE_STORAGE_BASE_PATH=${FILE_STORAGE_BASE_PATH}
+      - FILE_STORAGE_PUBLIC_PATH=${FILE_STORAGE_PUBLIC_PATH}
+
+      # --- Optional R2 / Cloudflare storage ---
+      - R2_BUCKET=${R2_BUCKET}
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_PRESIGN_EXPIRY_SECONDS=${R2_PRESIGN_EXPIRY_SECONDS}
+
     restart: unless-stopped
     volumes:
       - app-storage:/app/storage
